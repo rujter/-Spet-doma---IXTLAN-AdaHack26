@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Spet doma · Rutina in zdravnik</title>
+<title>Moj portal · Spet doma</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;600;700&family=DM+Serif+Text&display=swap" rel="stylesheet">
 <style>
@@ -220,12 +220,106 @@ footer{color:var(--muted);font-size:14px;border-top:1px solid var(--line);margin
 .tmdot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px;vertical-align:-1px}
 .tmlab{font:600 14px system-ui;fill:#222d39}
 @media(max-width:640px){.contact-grid{grid-template-columns:1fr}.whocall{flex-direction:row;gap:12px}.whocall .ic{font-size:24px}.tmlab{font-size:20px}}
+
+/* ===== portal (prva stran) ===== */
+#portal{min-height:100vh;background:linear-gradient(#fff 0,#eef2f4 340px,#eef2f4 100%);color:#17393c;font:17px/1.45 "Atkinson Hyperlegible Next",Arial,sans-serif}
+#portal button{min-height:0;font:inherit}
+.pz-demo{background:#17393c;color:#fff;font-size:14px;text-align:center;padding:5px 10px}
+.pz-wrap{max-width:1500px;margin:auto;padding:0 clamp(14px,5vw,110px) 70px}
+.pz-top{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:22px 0 26px}
+.pz-logo{display:flex;align-items:center;gap:10px;color:#3c8d4b;font:700 27px "Atkinson Hyperlegible Next",Arial,sans-serif;letter-spacing:-.5px}
+.pz-logo small{display:block;font-size:12px;font-weight:600;color:#6b8588;letter-spacing:.04em;margin-top:-4px}
+.pz-nav{display:flex;align-items:center;gap:34px;flex-wrap:wrap;color:#3a5a63}
+.pz-nav span{display:inline-flex;align-items:center;gap:9px;font-size:16px}
+.pz-nav svg{width:19px;height:19px;stroke:#3a5a63;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.pz-nav span.pz-av{justify-content:center;width:46px;height:46px;border-radius:50%;background:#5aa545;color:#fff;display:grid;place-items:center;font-size:15px;margin-left:8px}
+.pz-alerts{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.pz-alert{display:flex;align-items:center;gap:16px;background:#fff;border:1px solid #d3dcdf;border-radius:8px;padding:18px 20px;color:#c0392b;font-size:16px;min-height:72px}
+.pz-alert svg{flex:none;width:26px;height:26px;stroke:#c0392b;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.pz-alert span{flex:1}
+.pz-alert a,.pz-alert button.l{color:#17393c;background:none;border:0;padding:0;cursor:pointer;text-decoration:none;font:inherit}
+.pz-alert a:hover,.pz-alert button.l:hover{text-decoration:underline}
+.pz-alert .x{flex:none;width:38px;height:38px;border-radius:8px;border:0;background:#e6edef;cursor:pointer;color:#3a5a63;font-size:18px}
+.pz-h{font:700 34px/1.1 "Atkinson Hyperlegible Next",Arial,sans-serif;color:#1b2a2e;margin:44px 0 20px;letter-spacing:-.5px}
+.pz-card{background:#fff;border-radius:28px;padding:clamp(18px,3vw,40px);box-shadow:0 1px 2px #0000000a}
+.pz-fill{padding:0;overflow:hidden}.pz-center{display:block;padding:0}
+.pz-home{display:flex;align-items:center;gap:26px;text-align:left;cursor:pointer;border:0;border-radius:28px;background:#24574e;color:#fff;padding:60px clamp(24px,6vw,90px);width:100%;min-height:clamp(220px,28vw,300px);justify-content:center;box-shadow:0 6px 18px #24574e40;transition:transform .15s,background .15s}
+.pz-home:hover{background:#1c463f;transform:translateY(-2px)}
+.pz-home:focus-visible{outline:4px solid #dc8134;outline-offset:3px}
+.pz-home .ic{flex:none;width:110px;height:110px;border-radius:28px;background:#ffffff22;display:grid;place-items:center}
+.pz-home .ic svg{width:64px;height:64px;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.pz-home b{display:block;font:500 clamp(40px,5vw,64px)/1.05 "DM Serif Text",Georgia,serif}
+.pz-home span.s{display:block;margin-top:10px;font-size:22px;opacity:.88}
+.pz-home .go{margin-left:clamp(10px,3vw,50px);font-size:56px;line-height:1}
+.pz-tools{display:flex;gap:18px;flex-wrap:wrap;margin-top:6px}
+.pz-sel,.pz-search{height:48px;border:1px solid #3a5a63;border-radius:6px;background:#fff;color:#3a5a63;font:inherit;padding:0 14px}
+.pz-sel{width:min(100%,335px)}
+.pz-search{width:min(100%,335px);padding-right:44px}
+.pz-sw{position:relative}
+.pz-sw svg{position:absolute;right:14px;top:14px;width:20px;height:20px;stroke:#3a5a63;fill:none;stroke-width:1.8;stroke-linecap:round;pointer-events:none}
+.pz-month{font:700 15px "Atkinson Hyperlegible Next",Arial,sans-serif;text-transform:uppercase;letter-spacing:.07em;color:#5b7377;margin:28px 0 6px}
+.pz-row{display:grid;grid-template-columns:118px 190px minmax(0,1fr) auto;gap:6px 18px;align-items:center;padding:14px 4px;border-top:1px solid #e3e9eb}
+.pz-row .d{color:#5b7377;font-size:15.5px}
+.pz-row b{font-weight:700;font-size:17px;display:block}
+.pz-row .sub{color:#5b7377;font-size:15px}
+.pz-tag{display:inline-block;padding:2px 12px;border-radius:12px;font-size:14px;font-weight:700;background:#e6ebe9;color:#33504a;white-space:nowrap}
+.pz-tag.n{background:#dcecf7;color:#1d5a82}.pz-tag.r{background:#e1efe0;color:#2b6a35}.pz-tag.nl{background:#f3e9d4;color:#7a5617}.pz-tag.d{background:#e6ebe9;color:#33504a}.pz-tag.p{background:#f3dfe0;color:#8a3a40}.pz-tag.nv{background:#e7e1f1;color:#4d3a7a}
+.pz-st{font-size:14.5px;color:#5b7377;white-space:nowrap}.pz-st.up{color:#1d5a82;font-weight:700}
+.pz-empty{color:#5b7377;text-align:center;padding:34px 10px}
+.pz-foot{margin-top:34px;color:#5b7377;font-size:14px}
+@media(max-width:900px){.pz-alerts{grid-template-columns:1fr}.pz-row{grid-template-columns:1fr auto}.pz-row .tg{grid-column:1/2}.pz-row .st{grid-column:2/3;grid-row:1}.pz-row .mid{grid-column:1/3}.pz-home{padding:30px 22px;gap:16px;min-height:200px}.pz-home .ic{width:68px;height:68px}.pz-home .ic svg{width:40px;height:40px}.pz-home b{font-size:34px}.pz-home span.s{font-size:16px}.pz-home .go{font-size:36px}.pz-nav{gap:18px}}
+.backportal{background:none;border:0;min-height:0;padding:6px 10px;color:var(--green);font-weight:700;border-radius:10px}
+.backportal:hover{background:#ebe8de}
 </style>
 </head>
 <body>
-<div class="app">
+<div id="portal">
+  <div class="pz-demo">Predstavitveni prikaz: izmišljen portal, podatki niso resnični.</div>
+  <div class="pz-wrap">
+    <header class="pz-top">
+      <div class="pz-logo" aria-label="Demo portal"><svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="#3c8d4b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="22" cy="22" r="18"/><path d="M10 24h7l3-8 4 14 3-6h7"/></svg><span>moj portal<small>DEMO</small></span></div>
+      <nav class="pz-nav" aria-label="Glavni meni">
+        <span><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Pogovori in naročanje</span>
+        <span><svg viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="14" rx="2"/><path d="M12 10v6M9 13h6M9 6V4h6v2"/></svg>Zdravljenje in oskrba</span>
+        <span><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>Zdravstveno zavarovanje</span>
+        <span class="pz-av" aria-label="Uporabnica Marija">M</span>
+      </nav>
+    </header>
+
+    <div class="pz-alerts" id="pzAlerts">
+      <div class="pz-alert"><svg viewBox="0 0 24 24"><path d="M12 3L2 20h20z"/><path d="M12 10v5M12 17.5v.5"/></svg><span>Vpišite kontaktne podatke. <button class="l" type="button">Odpri v oknu</button></span></div>
+      <div class="pz-alert" id="pzAl2"><svg viewBox="0 0 24 24"><path d="M12 3L2 20h20z"/><path d="M12 10v5M12 17.5v.5"/></svg><span>Novost! Po odpustu iz bolnišnice vam pomaga aplikacija Spet doma. <button class="l" type="button" onclick="openApp()">Odpri Spet doma</button></span>
+        <button class="x" type="button" aria-label="Skrij obvestilo" onclick="document.getElementById('pzAl2').remove()">✕</button></div>
+    </div>
+
+    <h2 class="pz-h">Pomembno</h2>
+    <section class="pz-card pz-fill" aria-label="Pomembno">
+      <div class="pz-center">
+        <button class="pz-home" type="button" onclick="openApp()">
+          <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg></span>
+          <span><b>Spet doma</b><span class="s">Rutina in zdravnik po odpustu</span></span>
+          <span class="go" aria-hidden="true">→</span>
+        </button>
+      </div>
+    </section>
+
+    <h2 class="pz-h">Časovnica</h2>
+    <section class="pz-card" aria-label="Časovnica">
+      <div class="pz-tools">
+        <select class="pz-sel" id="pzRange" aria-label="Obdobje" onchange="pzRender()">
+          <option value="31">Zadnji mesec</option><option value="183">Zadnjih 6 mesecev</option><option value="365">Zadnje leto</option><option value="730" selected>Zadnji 2 leti</option>
+        </select>
+        <div class="pz-sw"><input class="pz-search" id="pzQ" type="search" placeholder="Vpišite podatek za iskanje" aria-label="Iskanje" oninput="pzRender()"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></div>
+      </div>
+      <div id="pzList"></div>
+    </section>
+    <p class="pz-foot">Vsi vnosi v časovnici so izmišljeni in služijo samo za prikaz.</p>
+  </div>
+</div>
+
+<div class="app hidden" id="appwrap">
   <div class="top">
-    <span class="brand">⌂ &nbsp;Spet doma</span>
+    <span class="row" style="gap:6px;flex-wrap:nowrap"><button class="backportal" onclick="openPortal()" aria-label="Nazaj na portal">‹ Portal</button><span class="brand">⌂ &nbsp;Spet doma</span></span>
     <div class="seg" role="group" aria-label="Pogled">
       <button id="vP" onclick="setView('patient')">Pacientka</button>
       <button id="vD" onclick="setView('doctor')">Zdravnik</button>
@@ -1111,6 +1205,62 @@ S=load();{const d=seed();S.homeSince=S.homeSince||d.homeSince;S.supplies=S.suppl
 try{if(S.view==='doctor'&&!S.thread)S=seed()}catch(e){S=seed()}
 S.view='patient';S.route='home';/* vedno odpri pacientov pogled */
 renderAll();
+
+/* ===== portal logic ===== */
+const PZ_TYPES={n:'Naročilo',nl:'Napotna listina',r:'Recept',d:'Dokument',p:'Potrdilo o zadržanosti',nv:'Navodilo o ravnanju'};
+const PZ=[
+ [14,'n','Kontrola pri zdravnici','Ambulanta družinske medicine'],
+ [10,'n','Stomaterapevtka','Stomaterapevtska ambulanta'],
+ [8,'n','Kirurg, kontrolni pregled','Kirurška ambulanta'],
+ [5,'n','Odstranitev katetra','Urološka ambulanta'],
+ [2,'n','Patronažna sestra','Obisk na domu'],
+ [-1,'r','Atorvastatin 20 mg','Izdala dr. Ana Novak · 30 tablet'],
+ [-3,'d','Odpustno pismo','Kirurški oddelek · po operaciji'],
+ [-3,'nv','Nega stome in urinskega katetra','Navodila ob odpustu'],
+ [-3,'nl','Patronažna zdravstvena nega','Napotnica za obisk na domu'],
+ [-3,'p','Bolniški stalež po operaciji','Potrdilo o zadržanosti od dela'],
+ [-4,'r','Paracetamol 500 mg','Izdala dr. Ana Novak · 20 tablet'],
+ [-4,'r','Pantoprazol 20 mg','Izdala dr. Ana Novak · 14 tablet'],
+ [-9,'d','Laboratorijski izvid','Krvna slika, CRP, elektroliti'],
+ [-12,'d','Izvid slikanja','Ultrazvok trebuha'],
+ [-18,'nl','Predoperativni pregled','Napotnica na anesteziološko ambulanto'],
+ [-26,'n','Anesteziološka ambulanta','Predoperativni posvet'],
+ [-41,'r','Amlodipin 5 mg','Izdala dr. Ana Novak · 90 tablet'],
+ [-58,'d','Izvid specialista','Gastroenterološka ambulanta'],
+ [-77,'nv','Prehrana pred posegom','Splošna navodila o prehrani'],
+ [-112,'nl','Gastroenterološki pregled','Napotnica na kolonoskopijo'],
+ [-139,'d','Izvid EKG','Mirovni elektrokardiogram'],
+ [-171,'r','Vitamin D3 1000 IE','Izdala dr. Ana Novak · 60 kapsul'],
+ [-214,'p','Potrdilo o zadržanosti','Prehlad, 5 delovnih dni'],
+ [-263,'d','Izvid oftalmologa','Kontrolni pregled vida'],
+ [-322,'r','Atorvastatin 20 mg','Izdala dr. Ana Novak · 90 tablet'],
+ [-381,'n','Sistematski pregled','Ambulanta družinske medicine'],
+ [-449,'nl','Ortopedski pregled','Napotnica, bolečina v kolenu'],
+ [-517,'nv','Vaje za koleno','Navodila fizioterapevta'],
+ [-604,'d','Cepilni karton','Cepljenje proti gripi'],
+ [-688,'r','Amlodipin 5 mg','Izdala dr. Ana Novak · 90 tablet'],
+ [-745,'d','Stari izvid','Izven izbranega obdobja']
+];
+const PZ_STATUS={n:['Prihodnji','Opravljeno'],nl:['Veljavna','Porabljena'],r:['Veljaven','Prevzeto'],d:['','Na voljo'],p:['','Oddano'],nv:['','Na voljo']};
+function pzRender(){
+  const days=+document.getElementById('pzRange').value,q=document.getElementById('pzQ').value.trim().toLowerCase();
+  const today=new Date();today.setHours(12,0,0,0);
+  const items=PZ.map(([o,t,ti,su])=>{const d=new Date(today);d.setDate(d.getDate()+o);return {o,t,ti,su,d}})
+    .filter(x=>x.o>=-days)
+    .filter(x=>!q||(x.ti+' '+x.su+' '+PZ_TYPES[x.t]).toLowerCase().includes(q))
+    .sort((a,b)=>b.d-a.d);
+  let h='',last='';
+  items.forEach(x=>{
+    const m=x.d.toLocaleDateString('sl-SI',{month:'long',year:'numeric'}),mm=m.charAt(0).toUpperCase()+m.slice(1);
+    if(mm!==last){h+='<div class="pz-month">'+mm+'</div>';last=mm}
+    const up=x.o>0,st=up?'Prihodnji':(x.o>-8&&(x.t==='r'||x.t==='nl'||x.t==='p')?PZ_STATUS[x.t][0]:PZ_STATUS[x.t][1]);
+    h+='<div class="pz-row"><span class="d">'+x.d.toLocaleDateString('sl-SI',{day:'numeric',month:'numeric',year:'numeric'}).replace(/\s/g,'')+'</span><span class="tg"><span class="pz-tag '+x.t+'">'+PZ_TYPES[x.t]+'</span></span><span class="mid"><b>'+esc(x.ti)+'</b><span class="sub">'+esc(x.su)+'</span></span><span class="st pz-st '+(up?'up':'')+'">'+st+'</span></div>';
+  });
+  document.getElementById('pzList').innerHTML=h||'<p class="pz-empty">Ni zadetkov za izbrano obdobje in iskanje.</p>';
+}
+function openApp(){document.getElementById('portal').classList.add('hidden');document.getElementById('appwrap').classList.remove('hidden');S.view='patient';S.route='home';renderAll();window.scrollTo(0,0)}
+function openPortal(){document.getElementById('appwrap').classList.add('hidden');document.getElementById('portal').classList.remove('hidden');window.scrollTo(0,0)}
+pzRender();
 </script>
 </body>
 </html>
