@@ -208,6 +208,13 @@ footer{color:var(--muted);font-size:14px;border-top:1px solid var(--line);margin
 .tmchips{display:flex;flex-wrap:wrap;gap:8px}
 .tmchip{min-height:48px;border:1px solid #c2c6c0;border-radius:999px;background:#fff;padding:8px 16px;font-weight:600;font-size:16px;cursor:pointer}
 .tmchip[aria-pressed=true]{background:var(--green);color:#fff;border-color:var(--green)}
+.tmgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(138px,1fr));gap:10px}
+.tmtile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:104px;padding:10px 8px;border:2px solid #c2c6c0;border-radius:18px;background:#fff;cursor:pointer;font:inherit;color:inherit}
+.tmtile .sym{font-size:38px;line-height:1}
+.tmtile .tl{font-weight:700;font-size:17px;line-height:1.2;text-align:center}
+.tmtile[aria-pressed=true]{background:var(--green);border-color:var(--green);color:#fff}
+.tmtile.urg{border-color:var(--red);color:var(--red)}
+.tmtile.urg[aria-pressed=true]{background:var(--red);color:#fff}
 .tmchip.urg{border-color:var(--red);color:var(--red)}
 .tmchip.urg[aria-pressed=true]{background:var(--red);color:#fff}
 .tmdot{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px;vertical-align:-1px}
@@ -572,8 +579,21 @@ function timelineHtml(){
   return `<h2 style="margin:22px 0 4px">Tvoji naslednji obiski</h2>
   <div class="card" style="margin:8px 0 0"><p class="small" style="margin:0">Dan doma: ${n}. Povleci v stran za več.</p>
    <div class="tlc" role="list">${TL.map((x,i)=>(i?'<span class="ar" aria-hidden="true">→</span>':'')+node(x,i)).join('')}</div>
+   <div class="row" style="margin-top:8px"><button onclick="trToggle()" aria-expanded="${trOpen}">🚐 Potrebujem prevoz</button></div>
+   ${trOpen?trPanel():''}
    <p class="small" style="margin:10px 0 0">Termini so primer. V pravi različici jih aplikacija prebere iz zVEM (eNaročanje).</p></div>`;
 }
+let trOpen=false,trSel=0;
+function trToggle(){trOpen=!trOpen;renderMain()}
+function trPick(i){trSel=i;renderMain()}
+function trPanel(){
+  const dt=x=>addDays(dkey(),x.o);
+  return `<div class="note" style="margin:10px 0 0;background:#e8f3ea"><b>Za kateri obisk potrebuješ prevoz?</b>
+   <div class="tmchips" style="margin:10px 0">${TL.map((x,i)=>`<button class="tmchip" aria-pressed="${trSel===i}" onclick="trPick(${i})">${esc(x.t)} · ${fmtDate(dt(x),{weekday:'short',day:'numeric',month:'numeric'})}</button>`).join('')}</div>
+   <p class="small" style="margin:0 0 10px">Prošnja gre zdravnici. Ona presodi, ali ti pripada prevoz na stroške zdravstvenega zavarovanja (ZZZS), in ti odgovori. Prevoz ni zagotovljen vsem.</p>
+   <div class="row"><button class="primary" onclick="trSend()">Pošlji prošnjo zdravnici</button><button class="link" onclick="trToggle()">Prekliči</button></div></div>`;
+}
+function trSend(){const x=TL[trSel];push({kind:'message',text:'Potrebujem prevoz na obisk: '+x.t+', '+fmtDate(addDays(dkey(),x.o),{weekday:'long',day:'numeric',month:'long'})+'.'});trOpen=false;renderMain();toast('Zdravnica je obveščena. Odgovorila bo v aplikaciji.')}
 function homeView(){
   const sg=suggested(),wi=weeklyInfo();
   const cards=['morning','night'].map(k=>{const [d,n]=progress(k);return `<button class="routine ${ROUTINES[k].cls}" onclick="go('${k}')"><span class="orb" aria-hidden="true"></span><span>${sg===k?'<span class="now">Zdaj je čas</span><br>':''}<b>${ROUTINES[k].title}</b></span><span>${d} od ${n} opravljeno &nbsp;→</span></button>`}).join('');
@@ -996,16 +1016,16 @@ const TM_FIXED=[
  {id:'112',name:'112',role:'Reševalci',what:'Težko dihanje, bolečina v prsih, močna krvavitev, padec in ne moreš vstati.',phone:'112',short:'112',when:'vedno',sch:'always',urg:true}
 ];
 const TM_Q=[
- {k:'Rana ali šivi',ids:['ps','dr','dez']},
- {k:'Vročina',ids:['dr','ps','dez'],note:'Če je vročina nad 38 °C in te trese ali si zmedena, ne čakaj.'},
- {k:'Kateter',ids:['ps','dr','dez'],guide:'cath',gl:'Težave s katetrom'},
- {k:'Stoma ali vrečke',ids:['et','ps','dr'],guide:'stoma',gl:'Menjava vrečke'},
- {k:'Bolečina',ids:['dr','ps','dez']},
- {k:'Zdravila, recepti',ids:['dr','lek']},
- {k:'Pripomočki zmanjkujejo',ids:['dr','lek'],guide:'supply',gl:'Moja zaloga'},
- {k:'Operacija, kontrola',ids:['ks','dr']},
- {k:'Ne vem, koga',ids:['dr'],note:'Zdravnica te napoti naprej. Ne motiš.'},
- {k:'Nujno',ids:['112'],urgent:true,note:'Težko dihanje, bolečina v prsih, močna krvavitev ali padec, ko ne moreš vstati.'}
+ {k:'Rana ali šivi',ic:'🩹',ids:['ps','dr','dez']},
+ {k:'Vročina',ic:'🌡️',ids:['dr','ps','dez'],note:'Če je vročina nad 38 °C in te trese ali si zmedena, ne čakaj.'},
+ {k:'Kateter',ic:'💧',ids:['ps','dr','dez'],guide:'cath',gl:'Težave s katetrom'},
+ {k:'Stoma ali vrečke',ic:'🛍️',ids:['et','ps','dr'],guide:'stoma',gl:'Menjava vrečke'},
+ {k:'Bolečina',ic:'⚡',ids:['dr','ps','dez']},
+ {k:'Zdravila, recepti',ic:'💊',ids:['dr','lek']},
+ {k:'Pripomočki zmanjkujejo',ic:'📦',ids:['dr','lek'],guide:'supply',gl:'Moja zaloga'},
+ {k:'Operacija, kontrola',ic:'🏥',ids:['ks','dr']},
+ {k:'Ne vem, koga',ic:'❓',ids:['dr'],note:'Zdravnica te napoti naprej. Ne motiš.'},
+ {k:'Nujno',ic:'🚨',ids:['112'],urgent:true,note:'Težko dihanje, bolečina v prsih, močna krvavitev ali padec, ko ne moreš vstati.'}
 ];
 let tmQ=null,tmSel=null;
 const TM_DN=['ned','pon','tor','sre','čet','pet','sob'];
@@ -1054,14 +1074,14 @@ function tmCard(p){const on=tmAvail(p),hl=(tmQ!==null&&TM_Q[tmQ].ids.includes(p.
 function teamView(){
  const d=new Date();
  return `<button class="quiet" onclick="goBack()">‹ Nazaj</button><h1>Koga pokličem?</h1>
- <p class="small" style="margin:0 0 12px">Izberi, kaj te skrbi. Pokažem ti pravo osebo. Zdaj: ${TM_DN[d.getDay()]} ${d.getHours()}.${String(d.getMinutes()).padStart(2,'0')}.</p>
- <div class="tmchips">${TM_Q.map((q,i)=>`<button class="tmchip ${q.urgent?'urg':''}" aria-pressed="${tmQ===i}" onclick="tmAsk(${i})">${q.k}</button>`).join('')}</div>
- ${tmAnswer()}
- <h2 style="margin:26px 0 6px">Tvoja zdravstvena ekipa</h2>
- ${tmTeam().map(tmCard).join('')}`;
+ <p class="small" style="margin:0 0 12px">Izberi simbol težave. Pokažem ti pravo osebo. Zdaj: ${TM_DN[d.getDay()]} ${d.getHours()}.${String(d.getMinutes()).padStart(2,'0')}.</p>
+ <div class="tmgrid" role="group" aria-label="Izberi težavo">${TM_Q.map((q,i)=>`<button class="tmtile ${q.urgent?'urg':''}" aria-pressed="${tmQ===i}" onclick="tmAsk(${i})"><span class="sym" aria-hidden="true">${q.ic}</span><span class="tl">${q.k}</span></button>`).join('')}</div>
+ ${tmQ===null?`<p class="small" style="margin:14px 0 0">Tapni simbol, ki ti je najbližji. Potem se pokažejo prave osebe.</p>`:`${tmAnswer()}
+ <h2 style="margin:26px 0 6px">Osebe za to težavo</h2>
+ ${TM_Q[tmQ].ids.map(tmGet).filter(Boolean).map(tmCard).join('')}`}`;
 }
 function openTeam(){tmQ=null;tmSel=null;openGuide('team')}
-function tmAsk(i){tmSel=null;tmQ=tmQ===i?null:i;renderMain();if(tmQ!==null){const c=document.querySelector('.tmchips');c&&c.nextElementSibling&&c.nextElementSibling.scrollIntoView({behavior:'smooth',block:'nearest'})}}
+function tmAsk(i){tmSel=null;tmQ=tmQ===i?null:i;renderMain();if(tmQ!==null){const c=document.querySelector('.tmgrid');c&&c.nextElementSibling&&c.nextElementSibling.scrollIntoView({behavior:'smooth',block:'nearest'})}}
 function tmPick(id){tmQ=null;tmSel=tmSel===id?null:id;renderMain();if(tmSel){const c=document.getElementById('tm-'+id);c&&c.scrollIntoView({behavior:'smooth',block:'center'})}}
 
 /* ---------- render ---------- */
