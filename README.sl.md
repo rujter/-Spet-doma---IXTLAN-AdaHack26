@@ -1,5 +1,7 @@
 # Spet doma
 
+Link do demo: https://rujter.github.io/Spet-Doma-Fikreti-AdaHack26-/
+
 Enodatotečni predstavitveni primer aplikacije za okrevanje doma, namenjene pacientki, ki je po operaciji ravnokar prišla iz bolnišnice s **katetrom** in **stomo**. V eni strani sta dva pogleda: pregleden **pogled pacientke** z velikimi črkami in **pogled zdravnika**, v katerem zdravnik obravnava pacientkine zahteve in nastavitve.
 
 > **Samo predstavitev.** Vse osebe, zdravila in telefonske številke so izmišljene (pacientka »Marija«, zdravnica »dr. Ana Novak«, telefon `01 XXX XX XX`). To ni medicinska programska oprema in ne nadomešča odpustnih navodil ali nasvetov zdravnika.
