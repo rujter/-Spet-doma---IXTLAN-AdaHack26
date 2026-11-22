@@ -503,7 +503,7 @@ function greeting(){const h=new Date().getHours();return h>=5&&h<11?'Dobro jutro
 
 function setView(v){S.view=v;save();renderAll();window.scrollTo(0,0)}
 function setTab(t){S.tab=t;save();renderAll()}
-function go(route){callOpen=false;S.route=route;S.open=null;S.helpOpen=null;ensureDay();save();renderMain();window.scrollTo(0,0)}
+function go(route){callOpen=false;S.route=route;S.open=null;S.helpOpen=null;S.supOpen=null;S.inlineMsg=null;ensureDay();save();renderMain();window.scrollTo(0,0)}
 function openTask(id){S.open=S.open===id?null:id;renderMain()}
 function toggleCheck(tid,i){ensureDay();const k=tid+':'+i;S.day.checks[k]=!S.day.checks[k];afterChange(tid)}
 function toggleTaken(id,slot){ensureDay();const k=id+'@'+slot;if(S.day.taken[k])delete S.day.taken[k];else S.day.taken[k]=Date.now();afterChange(S.route==='home'?null:ROUTINES[S.route].tasks.find(t=>t.type==='meds').id)}
@@ -516,11 +516,15 @@ function toggleTaskAll(tid){ensureDay();const r=S.route,t=ROUTINES[r].tasks.find
   else{t.items.forEach((_,i)=>{if(was)delete D.checks[tid+':'+i];else D.checks[tid+':'+i]=true});
     if(!was&&t.type==='stoma'&&t.change&&stomaDue()){S.open=tid;toast('Danes je dan menjave vrečke: potrdi menjavo spodaj.')}}
   save();renderMain()}
-function helpTask(tid){const r=S.route,t=ROUTINES[r].tasks.find(x=>x.id===tid);
-  if(t.type==='guide'){S.open=tid;S.helpOpen=S.helpOpen===tid?null:tid;renderMain()}
-  else if(t.type==='stoma')openGuide('stoma');
-  else if(t.type==='checks')openGuide('cath');
-  else askDoctor('Vprašanje glede zdravil: ')}
+function helpTask(tid){S.open=tid;const was=S.helpOpen===tid;S.helpOpen=was?null:tid;if(!was)resetHelp(tid);renderMain();if(!was)scrollHelp()}
+function showHelp(tid){S.open=tid;if(S.helpOpen!==tid){S.helpOpen=tid;resetHelp(tid)}renderMain();scrollHelp()}
+function resetHelp(tid){const t=ROUTINES[S.route]&&ROUTINES[S.route].tasks.find(x=>x.id===tid);if(t&&t.type==='stoma')S.stomaStep=0}
+function scrollHelp(){const e=document.getElementById('inhelp');if(e)e.scrollIntoView({block:'nearest',behavior:'smooth'})}
+function closeHelp(){S.helpOpen=null;S.supOpen=null;renderMain()}
+function askHere(pre,inl){if(!inl){askDoctor(pre);return}if(!S.draft)S.draft=pre;S.inlineMsg=S.open;renderMain();const d=document.getElementById('draftIn');if(d){d.focus();d.setSelectionRange(d.value.length,d.value.length);d.scrollIntoView({block:'center',behavior:'smooth'})}}
+function inlineMsgHtml(){return `<div class="note" style="margin:12px 0 0;background:#e8f3ea"><b>Sporočilo zdravniku</b><label class="fld" style="margin:8px 0"><textarea id="draftIn" rows="3" oninput="S.draft=this.value">${esc(S.draft)}</textarea></label><div class="row"><button class="primary" onclick="sendInline()">Pošlji zdravniku</button><button class="link" onclick="S.inlineMsg=null;renderMain()">Prekliči</button></div></div>`}
+function sendInline(){const t=(S.draft||'').trim();if(!t){toast('Napiši sporočilo.');return}push({kind:'message',text:t});S.draft='';S.inlineMsg=null;renderMain();toast('Sporočilo je poslano zdravniku.')}
+function medsHelp(){return `<div class="note" style="margin:12px 0 0;background:#e8f3ea"><b>Pomoč pri zdravilih</b><ul style="margin:6px 0 0;padding-left:22px"><li>Tapni zdravilo, ko ga vzameš. Desno se pokaže kljukica.</li><li>Slika tablete (oblika in barva) ti pomaga izbrati pravo.</li><li>Če zdravila nimaš, ga ne prepoznaš ali ti zmanjkuje, vprašaj zdravnico.</li></ul><div class="row" style="margin-top:10px"><button onclick="askHere('Vprašanje glede zdravil: ',true)">Piši zdravniku</button><button class="link" onclick="closeHelp()">Zapri pomoč ✕</button></div></div>`}
 function gstep(id,n,max){S.gstep[id]=Math.min(max,Math.max(0,(S.gstep[id]||0)+n));renderMain()}
 function setSys(s){S.sys=s;S.gstep={};renderMain()}
 function speak(text){try{const u=new SpeechSynthesisUtterance(text);u.lang='sl-SI';const v=speechSynthesis.getVoices().find(v=>v.lang.toLowerCase().startsWith('sl'));if(v)u.voice=v;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
@@ -557,13 +561,13 @@ const ISSUES={
   steps:['Običajen je svetlo rumen urin. Temnejši urin pomeni, da je treba piti več, razen če zdravnik ni določil drugače.','Moten urin ali neprijeten vonj: sporoči zdravniku še danes.','Rdeč urin ali strdki: pokliči zdravnika takoj.'],
   call:'Z vročino, mrzlico ali bolečino v trebuhu je to razlog za takojšen klic.',pre:'Urin je spremenjen: '}
 };
-function catGuide(){
+function catGuide(inl){
   const i=ISSUES[S.issue]||ISSUES.flow;
-  return `<button class="quiet" onclick="goBack()">‹ Nazaj</button><h1>Težave s katetrom</h1><p class="small" style="margin:0 0 10px">Izberi, kaj opaziš.</p>
+  return `${inl?'':'<button class="quiet" onclick="goBack()">‹ Nazaj</button><h1>Težave s katetrom</h1>'}<p class="small" style="margin:0 0 10px">Izberi, kaj opaziš.</p>
   <div class="chips" style="margin-bottom:8px" role="group">${Object.entries(ISSUES).map(([k,v])=>`<label><input type="radio" name="iss" ${k===S.issue?'checked':''} onchange="S.issue='${k}';renderMain()"><span>${v.chip}</span></label>`).join('')}</div>
   <div class="card"><h2>${i.title}</h2><div class="fig">${i.svg()}</div>
    <ol style="padding-left:24px;margin:8px 0">${i.steps.map(x=>`<li style="margin:6px 0">${esc(x)}</li>`).join('')}</ol>
-   <div class="note"><b>${esc(i.call)}</b> Klic je del načrta, ne motiš.<div class="row" style="margin-top:8px"><a class="phone" style="font-size:21px;margin:0" href="tel:${DOCTOR.phoneRaw}">☎ ${DOCTOR.phone}</a><button onclick="askDoctor(${esc(JSON.stringify(i.pre))})">Piši zdravniku</button></div></div>
+   <div class="note"><b>${esc(i.call)}</b> Klic je del načrta, ne motiš.<div class="row" style="margin-top:8px"><a class="phone" style="font-size:21px;margin:0" href="tel:${DOCTOR.phoneRaw}">☎ ${DOCTOR.phone}</a><button onclick="askHere(${esc(JSON.stringify(i.pre))},${!!inl})">Piši zdravniku</button></div></div>
    <p class="small" style="margin:10px 0 0">Ob nevarnosti za življenje: <b>112</b>.</p></div>`;
 }
 /* stoma bag change */
@@ -599,16 +603,16 @@ const STOMA={
   {f:'attach',t:'Pripni novo vrečko',d:'Poravnaj obroček na vrečki z obročkom podloge in pritisni, da klikne. Rahlo povleci za potrditev.'},
   {f:'check',t:'Preveri',d:'Zapirač na dnu je zaprt in vrečka je trdno pripeta. Umij roke.'}]
 };
-function stomaGuide(){
+function stomaGuide(inl){
   const steps=STOMA[S.stomaType],i=Math.min(S.stomaStep,steps.length-1),s=steps[i],last=i===steps.length-1,two=S.stomaType==='two';
-  return `<button class="quiet" onclick="goBack()">‹ Nazaj</button><h1>Menjava vrečke za stomo</h1>
-  <div class="card"><div class="row spread"><small>Kakšno vrečko imaš?</small><div class="seg2" role="group"><button aria-pressed="${!two}" onclick="S.stomaType='one';S.stomaStep=0;renderMain()">Enodelna</button><button aria-pressed="${two}" onclick="S.stomaType='two';S.stomaStep=0;renderMain()">Dvodelna</button></div></div>
+  return `${inl?'':'<button class="quiet" onclick="goBack()">‹ Nazaj</button><h1>Menjava vrečke za stomo</h1>'}
+  <div class="card"${inl?' style="margin:12px 0 0"':''}><div class="row spread"><small>Kakšno vrečko imaš?</small><div class="seg2" role="group"><button aria-pressed="${!two}" onclick="S.stomaType='one';S.stomaStep=0;renderMain()">Enodelna</button><button aria-pressed="${two}" onclick="S.stomaType='two';S.stomaStep=0;renderMain()">Dvodelna</button></div></div>
    <div class="fig"><svg viewBox="0 0 320 200" role="img" aria-label="Korak ${i+1}: ${esc(s.t)}" ${FONT}>${stomaScene(s.f,two)}</svg></div>
    <div class="dots">${steps.map((_,k)=>`<i class="${k<=i?'on':''}"></i>`).join('')}</div>
    <div class="row spread"><h3>${i+1}. ${esc(s.t)}</h3>${hasSl()?`<button aria-label="Poslušaj korak" onclick='speak(${JSON.stringify(s.t+'. '+s.d)})'>🔊</button>`:''}</div><p>${esc(s.d)}</p>
-   <div class="row">${i?`<button onclick="S.stomaStep--;renderMain()">‹ Nazaj</button>`:''}${last?`<button class="primary" onclick="goBack()">Končano ✓</button>`:`<button class="primary" onclick="S.stomaStep++;renderMain()">Naprej →</button>`}</div></div>
+   <div class="row">${i?`<button onclick="S.stomaStep--;renderMain()">‹ Nazaj</button>`:''}${last?`<button class="primary" onclick="${inl?'closeHelp()':'goBack()'}">Končano ✓</button>`:`<button class="primary" onclick="S.stomaStep++;renderMain()">Naprej →</button>`}</div></div>
   <div class="note">Če vrečka pušča, jo zamenjaj takoj. Če je stoma temna, vijolična ali črna, ali imaš hudo bolečino v trebuhu, pokliči zdravnika: <a href="tel:${DOCTOR.phoneRaw}"><b>${DOCTOR.phone}</b></a>. Ob nevarnosti za življenje <b>112</b>.
-   <div style="margin-top:8px"><button onclick="askDoctor('Težava z vrečko za stomo. ')">Piši zdravniku</button></div></div>`;
+   <div style="margin-top:8px"><button onclick="askHere('Težava z vrečko za stomo. ',${!!inl})">Piši zdravniku</button></div></div>`;
 }
 function openGuide(r){S.back=S.route;S.route=r;S.open=null;if(r==='stoma')S.stomaStep=0;save();renderMain();window.scrollTo(0,0)}
 function goBack(){go(S.back&&!['cath','stoma','msg','weekly','supply','people','team'].includes(S.back)?S.back:'home')}
@@ -626,6 +630,16 @@ function pillCard(m,slot){
     ${low?`<div class="refillhint small" style="margin:-4px 4px 4px 14px">${pending?'⏳ Prošnja za recept čaka na zdravnika.':`Zaloga: še ${m.left} ${m.left===1?'tableta':'tablet'}. <button class="link" onclick="startRefill([${m.id}])">Zaprosi za nov recept</button>`}</div>`:''}`;
 }
 function taskBody(t,r){
+  let h=taskBody0(t,r);
+  if(t.type!=='guide'&&S.helpOpen===t.id){
+    const hd='<div class="row spread" style="margin-top:16px"><b>Pomoč</b><button class="link" onclick="closeHelp()">Zapri pomoč ✕</button></div>';
+    h+='<div id="inhelp">'+(t.type==='stoma'?hd+stomaGuide(true):t.type==='checks'?hd+catGuide(true):medsHelp())+'</div>';
+  }
+  if(S.supOpen===t.id)h+='<div id="insup"><div class="row spread" style="margin-top:16px"><b>Zaloga</b><button class="link" onclick="S.supOpen=null;renderMain()">Zapri ✕</button></div>'+supplyView(true)+'</div>';
+  if(S.inlineMsg===t.id)h+=inlineMsgHtml();
+  return h;
+}
+function taskBody0(t,r){
   const R=ROUTINES[r];
   if(t.type==='guide'){
     const steps=GUIDE[t.mode][S.sys],i=Math.min(S.gstep[t.id]||0,2),s=steps[i],last=i===2;
@@ -636,7 +650,7 @@ function taskBody(t,r){
       <div class="row spread"><h3>${i+1}. ${esc(s.t)}</h3>${hasSl()?`<button aria-label="Poslušaj korak" title="Poslušaj" onclick='speak(${JSON.stringify(s.t+'. '+s.d)})'>🔊</button>`:''}</div>
       <p>${esc(s.d)}</p>
       <div class="row">${i?`<button onclick="gstep('${t.id}',-1,2)">‹ Nazaj</button>`:''}${last?`<button class="primary" onclick="S.helpOpen=null;finishGuide('${t.id}')">Končano ✓</button>`:`<button class="primary" onclick="gstep('${t.id}',1,2)">Naprej →</button>`}</div>
-      <p class="small" style="margin-top:12px">Oprema je drugačna ali česa ne prepoznaš? <button class="link" onclick="askDoctor('Moja oprema je drugačna od tiste v navodilih. ')">Vprašaj zdravnika</button></p>`;
+      <p class="small" style="margin-top:12px">Oprema je drugačna ali česa ne prepoznaš? <button class="link" onclick="askHere('Moja oprema je drugačna od tiste v navodilih. ',true)">Vprašaj zdravnika</button></p>`;
   }
   if(t.type==='meds'){
     const ms=medsFor(R.slot);
@@ -649,7 +663,7 @@ function taskBody(t,r){
           :`<p class="small" style="margin-top:12px">Vrečko za stomo menjaš vsak ${S.stoma.every}. dan. Naslednja menjava: <b>${fmtDate(addDays(S.stoma.last,S.stoma.every))}</b>. Če počila ali pušča, jo zamenjaj prej in nam sporoči.</p>`;
   }
   if(t.type==='stoma')h+=supLine('sb');
-  h+=t.type==='stoma'?`<p class="small" style="margin-top:12px"><button class="link" onclick="openGuide('stoma')">Kako zamenjam vrečko za stomo? (slike)</button></p>`:`<p class="small" style="margin-top:12px">Težava s katetrom? <button class="link" onclick="openGuide('cath')">Poglej navodila s sliko</button></p>`;
+  h+=t.type==='stoma'?`<p class="small" style="margin-top:12px"><button class="link" onclick="showHelp('${t.id}')">Kako zamenjam vrečko za stomo? (slike)</button></p>`:`<p class="small" style="margin-top:12px">Težava s katetrom? <button class="link" onclick="showHelp('${t.id}')">Poglej navodila s sliko</button></p>`;
   return h;
 }
 function renderTask(t,r){
@@ -1014,7 +1028,7 @@ const supStage=s=>s.state==='issued'?'issued':s.state==='asked'?'asked':supDays(
 const SUPTAG={ok:['Dovolj','green'],order:['Čas je za naročilo','amber'],urgent:['Nujno naroči','red'],asked:['Zdravnica je obveščena','amber'],issued:['Naročilnica je izdana','green']};
 const fmtShort=k=>fmtDate(k,{day:'numeric',month:'long'});
 function supLine(id){const s=S.supplies.find(x=>x.id===id);if(!s)return '';const st=supStage(s);
-  return `<p class="small" style="margin-top:12px">Zaloga: <b>še ${bagsN(s.left)}</b> (za ~${supDays(s)} dni)${st==='order'||st==='urgent'?' · <b style="color:var(--amber)">čas je za naročilo</b>':''}. <button class="link" onclick="openGuide('supply')">Zaloga ›</button></p>`}
+  return `<p class="small" style="margin-top:12px">Zaloga: <b>še ${bagsN(s.left)}</b> (za ~${supDays(s)} dni)${st==='order'||st==='urgent'?' · <b style="color:var(--amber)">čas je za naročilo</b>':''}. <button class="link" onclick="S.supOpen=S.open;renderMain()">Zaloga ›</button></p>`}
 function supNotice(){const low=S.supplies.filter(s=>['order','urgent'].includes(supStage(s)));if(!low.length)return '';
   const u=low.some(s=>supStage(s)==='urgent');
   return `<div class="note" style="margin:14px 0 0;${u?'background:#f6dcd6':''}"><b>Zaloga:</b> ${low.map(s=>esc(s.name.toLowerCase())+' še za '+supDays(s)+' dni').join(', ')}. <button class="link" onclick="openGuide('supply')">Poglej in naroči</button></div>`}
@@ -1033,8 +1047,8 @@ function supCard(s){
     <div style="flex:1"><span style="font:38px/1 'DM Serif Text',Georgia,serif">${s.left}</span> <span style="font-size:19px">${esc(s.unit)}</span><div class="small">za ~${d} dni · do ${fmtShort(addDays(dkey(),d))}</div></div>
     <button class="chipb" style="min-width:52px;height:52px;font-size:24px" aria-label="Ena več" onclick="supAdj('${s.id}',1)">+</button></div>
    <div class="bar" style="margin:10px 0 0"><i style="width:${pct}%;background:${bar}"></i></div>${act}</div>`}
-function supplyView(){
-  return `<button class="quiet" onclick="goBack()">‹ Nazaj</button><h1>Zaloga</h1>
+function supplyView(inl){
+  return `${inl?'':'<button class="quiet" onclick="goBack()">‹ Nazaj</button><h1>Zaloga</h1>'}
   <p class="small" style="margin:0 0 6px">Koliko vrečk imaš še doma. Ko ostane za dva tedna, te opozorimo, da je čas za naročilo.</p>
   ${S.supplies.map(supCard).join('')}
   <div class="card"><h3 style="margin-bottom:6px">Če dobavitelj nima, kar potrebuješ</h3>
